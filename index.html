@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en-MY">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ReceiptLens</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Dashboard -->
+  <div id="screen-dashboard" class="screen active">
+    <div class="screen-header">
+      <div>
+        <h1>ReceiptLens</h1>
+        <span class="sub">Malaysia Receipt Tracker</span>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat-card">
+        <span class="num" id="stat-total">0</span>
+        <span class="label">Total</span>
+      </div>
+      <div class="stat-card">
+        <span class="num" id="stat-month">RM 0</span>
+        <span class="label">This Month</span>
+      </div>
+      <div class="stat-card">
+        <span class="num" id="stat-avg">RM 0</span>
+        <span class="label">Average</span>
+      </div>
+    </div>
+    <section>
+      <h2 style="font-size:16px;margin-bottom:8px">Recent Receipts</h2>
+      <div id="recent-receipts"></div>
+    </section>
+  </div>
+
+  <!-- Receipts -->
+  <div id="screen-receipts" class="screen">
+    <div class="screen-header">
+      <h1>Receipts</h1>
+    </div>
+    <input type="search" id="search-input" class="search-bar" placeholder="Search by vendor...">
+    <div id="receipt-list"></div>
+  </div>
+
+  <!-- Add / Edit -->
+  <div id="screen-add" class="screen">
+    <div class="screen-header">
+      <h1 id="add-title">Add Receipt</h1>
+    </div>
+    <form id="receipt-form">
+      <div class="form-group">
+        <label for="field-vendor">Vendor</label>
+        <input type="text" id="field-vendor" placeholder="e.g. Kedai Runcit" required>
+      </div>
+      <div class="form-group">
+        <label for="field-date">Date</label>
+        <input type="date" id="field-date" required>
+      </div>
+      <div class="form-group">
+        <label for="field-amount">Amount (RM)</label>
+        <input type="number" id="field-amount" placeholder="0.00" step="0.01" min="0" required>
+      </div>
+      <div class="form-group">
+        <label for="field-category">Category</label>
+        <select id="field-category"></select>
+      </div>
+      <div class="form-group">
+        <label for="field-notes">Notes</label>
+        <textarea id="field-notes" placeholder="Optional notes..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Receipt</button>
+    </form>
+  </div>
+
+  <!-- Categories -->
+  <div id="screen-categories" class="screen">
+    <div class="screen-header">
+      <h1>Categories</h1>
+    </div>
+    <div class="add-cat-row">
+      <input type="text" id="new-cat-name" placeholder="Category name">
+      <input type="color" id="new-cat-color" value="#4ECDC4">
+      <button id="add-cat-btn" class="btn">Add</button>
+    </div>
+    <div id="category-list"></div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="receipt-modal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close-btn">✕</button>
+      <div id="receipt-detail"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav id="bottom-nav">
+    <div class="nav-item active" data-screen="dashboard">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" data-screen="receipts">
+      <span class="nav-icon">📋</span> Receipts
+    </div>
+    <div class="nav-item" data-screen="add">
+      <span class="nav-icon">➕</span> Add
+    </div>
+    <div class="nav-item" data-screen="categories">
+      <span class="nav-icon">🏷</span> Categories
+    </div>
+  </nav>
+
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
