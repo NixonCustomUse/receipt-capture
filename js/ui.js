@@ -147,9 +147,8 @@ export function renderCharts(state) {
   }
 
   const Chart = state.Chart;
-  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
-  const textColor = isDark ? '#a0a0a0' : '#7a7a8a';
+  const gridColor = 'rgba(255,255,255,0.05)';
+  const textColor = '#8a8a9a';
 
   chartMonthlyInstance = new Chart(canvasMonthly, {
     type: 'bar',
@@ -158,7 +157,7 @@ export function renderCharts(state) {
       datasets: [{
         label: 'Spending',
         data: monthly.map(m => m.total),
-        backgroundColor: '#c9954a',
+        backgroundColor: '#d4a853',
         borderRadius: 6,
         borderSkipped: false
       }]
