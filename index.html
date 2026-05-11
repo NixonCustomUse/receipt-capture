@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ReceiptLens</title>
+<title>ReceiptLens — Malaysia Receipt Tracker</title>
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -11,82 +11,160 @@
 
   <!-- Dashboard -->
   <div id="screen-dashboard" class="screen active">
-    <div class="screen-header">
-      <div>
-        <h1>ReceiptLens</h1>
-        <span class="sub">Malaysia Receipt Tracker</span>
-      </div>
+    <div class="page-header">
+      <h1>ReceiptLens</h1>
+      <div class="sub">Malaysia Receipt Tracker</div>
     </div>
-    <div class="stats">
-      <div class="stat-card">
+    <div class="stats-grid">
+      <div class="stat-tile">
         <span class="num" id="stat-total">0</span>
         <span class="label">Total</span>
       </div>
-      <div class="stat-card">
+      <div class="stat-tile">
         <span class="num" id="stat-month">RM 0</span>
         <span class="label">This Month</span>
       </div>
-      <div class="stat-card">
+      <div class="stat-tile">
         <span class="num" id="stat-avg">RM 0</span>
         <span class="label">Average</span>
       </div>
     </div>
-    <section>
-      <h2 style="font-size:16px;margin-bottom:8px">Recent Receipts</h2>
+    <div class="section">
+      <h2 class="section-title">Recent Receipts</h2>
       <div id="recent-receipts"></div>
-    </section>
+    </div>
   </div>
 
   <!-- Receipts -->
   <div id="screen-receipts" class="screen">
-    <div class="screen-header">
+    <div class="page-header">
       <h1>Receipts</h1>
     </div>
-    <input type="search" id="search-input" class="search-bar" placeholder="Search by vendor...">
+    <div class="search-wrap">
+      <input type="search" id="search-input" class="search-bar" placeholder="Search by vendor...">
+    </div>
     <div id="receipt-list"></div>
   </div>
 
-  <!-- Add / Edit -->
+  <!-- Add -->
   <div id="screen-add" class="screen">
-    <div class="screen-header">
-      <h1 id="add-title">Add Receipt</h1>
+    <div class="page-header">
+      <h1>Add Receipt</h1>
     </div>
-    <form id="receipt-form">
-      <div class="form-group">
-        <label for="field-vendor">Vendor</label>
-        <input type="text" id="field-vendor" placeholder="e.g. Kedai Runcit" required>
-      </div>
-      <div class="form-group">
-        <label for="field-date">Date</label>
-        <input type="date" id="field-date" required>
-      </div>
-      <div class="form-group">
-        <label for="field-amount">Amount (RM)</label>
-        <input type="number" id="field-amount" placeholder="0.00" step="0.01" min="0" required>
-      </div>
-      <div class="form-group">
-        <label for="field-category">Category</label>
-        <select id="field-category"></select>
-      </div>
-      <div class="form-group">
-        <label for="field-notes">Notes</label>
-        <textarea id="field-notes" placeholder="Optional notes..."></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Save Receipt</button>
-    </form>
+    <div class="scan-options">
+      <button class="scan-option" id="btn-camera">
+        <span class="icon">📷</span>
+        <span class="label">Camera</span>
+        <span class="desc">Capture receipt</span>
+      </button>
+      <button class="scan-option" id="btn-upload">
+        <span class="icon">📁</span>
+        <span class="label">Upload</span>
+        <span class="desc">Choose image</span>
+      </button>
+    </div>
+    <div class="divider-text">or enter manually</div>
+    <div class="form-wrap">
+      <form id="receipt-form">
+        <div class="form-group">
+          <label for="field-vendor">Vendor</label>
+          <input type="text" id="field-vendor" placeholder="e.g. Kedai Runcit" required>
+        </div>
+        <div class="form-group">
+          <label for="field-date">Date</label>
+          <input type="date" id="field-date" required>
+        </div>
+        <div class="form-group">
+          <label for="field-amount">Amount (RM)</label>
+          <input type="number" id="field-amount" placeholder="0.00" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="field-category">Category</label>
+          <select id="field-category"></select>
+        </div>
+        <div class="form-group">
+          <label for="field-notes">Notes</label>
+          <textarea id="field-notes" placeholder="Optional notes..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Save Receipt</button>
+      </form>
+    </div>
   </div>
 
   <!-- Categories -->
   <div id="screen-categories" class="screen">
-    <div class="screen-header">
+    <div class="page-header">
       <h1>Categories</h1>
     </div>
-    <div class="add-cat-row">
-      <input type="text" id="new-cat-name" placeholder="Category name">
-      <input type="color" id="new-cat-color" value="#4ECDC4">
-      <button id="add-cat-btn" class="btn">Add</button>
+    <div class="cat-section">
+      <div class="add-cat-row">
+        <input type="text" id="new-cat-name" placeholder="Category name">
+        <input type="color" id="new-cat-color" value="#c9954a">
+        <button id="add-cat-btn" class="btn">Add</button>
+      </div>
+      <div id="category-list"></div>
     </div>
-    <div id="category-list"></div>
+  </div>
+
+  <!-- Camera Overlay -->
+  <div id="camera-overlay" class="overlay camera-overlay">
+    <div class="camera-header">
+      <button id="camera-close-btn">✕</button>
+      <button id="camera-flip-btn">🔄</button>
+    </div>
+    <video id="camera-video" autoplay playsinline></video>
+    <div class="camera-footer">
+      <button class="capture-btn" id="capture-btn"></button>
+    </div>
+    <canvas id="camera-canvas" style="display:none"></canvas>
+    <input type="file" id="file-input" accept="image/*" style="display:none">
+  </div>
+
+  <!-- Processing Overlay -->
+  <div id="processing-overlay" class="overlay processing-overlay">
+    <div class="processing-spinner"></div>
+    <div class="processing-status" id="processing-status">Processing...</div>
+    <div class="processing-progress">
+      <div class="processing-progress-fill" id="processing-progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Review Overlay -->
+  <div id="review-overlay" class="overlay review-overlay">
+    <div class="review-header">
+      <h2>Review Receipt</h2>
+      <button id="review-close-btn">✕</button>
+    </div>
+    <div class="review-image">
+      <img id="review-image" src="" alt="Receipt">
+    </div>
+    <div class="review-form">
+      <div class="form-group">
+        <label for="review-vendor">Vendor</label>
+        <input type="text" id="review-vendor" placeholder="Vendor name" required>
+      </div>
+      <div class="form-group">
+        <label for="review-date">Date</label>
+        <input type="date" id="review-date" required>
+      </div>
+      <div class="form-group">
+        <label for="review-amount">Amount (RM)</label>
+        <input type="number" id="review-amount" placeholder="0.00" step="0.01" min="0" required>
+      </div>
+      <div class="form-group">
+        <label for="review-category">Category</label>
+        <select id="review-category"></select>
+      </div>
+      <div class="form-group">
+        <label for="review-notes">Notes</label>
+        <textarea id="review-notes" placeholder="Optional notes..."></textarea>
+      </div>
+      <details class="review-ocr">
+        <summary>Raw OCR Text</summary>
+        <textarea id="review-ocr-text" readonly></textarea>
+      </details>
+      <button class="btn btn-accent btn-full" id="review-save-btn" style="margin-top:16px">Save Receipt</button>
+    </div>
   </div>
 
   <!-- Detail Modal -->

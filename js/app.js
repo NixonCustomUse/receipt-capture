@@ -14,8 +14,13 @@ import {
   populateCategoryDropdown,
   renderCategoryList,
   renderDetailModal,
-  closeModal
+  closeModal,
+  showProcessing,
+  hideProcessing,
+  showReviewOverlay,
+  hideReviewOverlay
 } from './ui.js';
+import { runOCR, extractReceiptData, terminateOCR } from './ocr.js';
 
 const state = {
   db: null,
@@ -23,8 +28,12 @@ const state = {
   categories: [],
   currentScreen: 'dashboard',
   editingId: null,
-  searchQuery: ''
+  searchQuery: '',
+  pendingImage: null
 };
+
+let cameraStream = null;
+let facingMode = 'environment';
 
 document.addEventListener('DOMContentLoaded', async () => {
   state.db = await openDB();
@@ -43,9 +52,7 @@ function setupNav() {
   document.querySelectorAll('.nav-item').forEach(el => {
     el.addEventListener('click', () => {
       const screen = el.dataset.screen;
-      if (state.editingId && screen !== 'add') {
-        state.editingId = null;
-      }
+      if (screen !== 'add') state.editingId = null;
       navigate(screen);
     });
   });
@@ -64,7 +71,7 @@ function navigate(screen) {
 
   if (screen === 'add') {
     const editing = state.editingId ? state.receipts.find(r => r.id === state.editingId) : null;
-    document.getElementById('add-title').textContent = editing ? 'Edit Receipt' : 'Add Receipt';
+    document.querySelector('#screen-add .page-header h1').textContent = editing ? 'Edit Receipt' : 'Add Receipt';
 
     if (editing) {
       document.getElementById('field-vendor').value = editing.vendorName || '';
@@ -79,8 +86,7 @@ function navigate(screen) {
       document.getElementById('field-notes').value = '';
       document.querySelector('#receipt-form button').textContent = 'Save Receipt';
     }
-
-    populateCategoryDropdown(state.categories, editing ? editing.categoryId : state.categories[0]?.id);
+    populateCategoryDropdown('field-category', state.categories, editing ? editing.categoryId : state.categories[0]?.id);
   }
 
   renderCurrentScreen();
@@ -95,7 +101,6 @@ function renderCurrentScreen() {
 }
 
 function setupEvents() {
-  // Receipt form submit
   document.getElementById('receipt-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = {
@@ -113,38 +118,27 @@ function setupEvents() {
     } else {
       await addReceipt(state.db, data);
     }
-
     document.getElementById('receipt-form').reset();
     document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
     await reloadData();
     navigate('receipts');
   });
 
-  // Receipt list click (open detail)
   document.getElementById('receipt-list').addEventListener('click', (e) => {
     const card = e.target.closest('.receipt-card');
-    if (card) {
-      const id = parseInt(card.dataset.id);
-      renderDetailModal(state, id);
-    }
+    if (card) renderDetailModal(state, parseInt(card.dataset.id));
   });
 
-  // Recent receipts click (dashboard)
   document.getElementById('recent-receipts').addEventListener('click', (e) => {
     const row = e.target.closest('.receipt-row');
-    if (row) {
-      const id = parseInt(row.dataset.id);
-      renderDetailModal(state, id);
-    }
+    if (row) renderDetailModal(state, parseInt(row.dataset.id));
   });
 
-  // Modal close
   document.getElementById('modal-close-btn').addEventListener('click', closeModal);
   document.getElementById('receipt-modal').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeModal();
   });
 
-  // Detail actions (edit / delete)
   document.getElementById('receipt-detail').addEventListener('click', async (e) => {
     const editBtn = e.target.closest('.edit-receipt');
     const delBtn = e.target.closest('.del-receipt');
@@ -158,41 +152,156 @@ function setupEvents() {
 
     if (delBtn) {
       if (!confirm('Delete this receipt?')) return;
-      const id = parseInt(delBtn.dataset.id);
-      await deleteReceipt(state.db, id);
+      await deleteReceipt(state.db, parseInt(delBtn.dataset.id));
       closeModal();
       await reloadData();
       renderCurrentScreen();
     }
   });
 
-  // Search
   document.getElementById('search-input').addEventListener('input', (e) => {
     state.searchQuery = e.target.value;
     renderReceiptList(state);
   });
 
-  // Add category
   document.getElementById('add-cat-btn').addEventListener('click', async () => {
-    const nameInput = document.getElementById('new-cat-name');
-    const colorInput = document.getElementById('new-cat-color');
-    const name = nameInput.value.trim();
+    const name = document.getElementById('new-cat-name').value.trim();
     if (!name) return;
-    await addCategory(state.db, { name, color: colorInput.value });
-    nameInput.value = '';
-    colorInput.value = '#4ECDC4';
+    await addCategory(state.db, { name, color: document.getElementById('new-cat-color').value });
+    document.getElementById('new-cat-name').value = '';
     await reloadData();
     renderCategoryList(state);
   });
 
-  // Delete category
   document.getElementById('category-list').addEventListener('click', async (e) => {
     const delBtn = e.target.closest('.del-cat');
     if (!delBtn) return;
     if (!confirm('Delete this category?')) return;
-    const id = parseInt(delBtn.dataset.id);
-    await deleteCategory(state.db, id);
+    await deleteCategory(state.db, parseInt(delBtn.dataset.id));
     await reloadData();
     renderCategoryList(state);
   });
+
+  // Camera
+  document.getElementById('btn-camera').addEventListener('click', openCamera);
+  document.getElementById('camera-close-btn').addEventListener('click', closeCamera);
+  document.getElementById('capture-btn').addEventListener('click', capturePhoto);
+  document.getElementById('camera-flip-btn').addEventListener('click', flipCamera);
+
+  // Upload
+  document.getElementById('btn-upload').addEventListener('click', () => {
+    document.getElementById('file-input').click();
+  });
+  document.getElementById('file-input').addEventListener('change', handleFileUpload);
+
+  // Review overlay
+  document.getElementById('review-close-btn').addEventListener('click', () => {
+    hideReviewOverlay();
+    state.pendingImage = null;
+  });
+  document.getElementById('review-save-btn').addEventListener('click', saveFromReview);
 }
+
+async function openCamera() {
+  try {
+    const video = document.getElementById('camera-video');
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } }
+    });
+    video.srcObject = cameraStream;
+    await video.play();
+    document.getElementById('camera-overlay').classList.add('open');
+  } catch (e) {
+    alert('Camera access denied or not available.');
+  }
+}
+
+function closeCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  document.getElementById('camera-video').srcObject = null;
+  document.getElementById('camera-overlay').classList.remove('open');
+}
+
+function flipCamera() {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  closeCamera();
+  setTimeout(openCamera, 300);
+}
+
+async function capturePhoto() {
+  const video = document.getElementById('camera-video');
+  const canvas = document.getElementById('camera-canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  closeCamera();
+  await processImage(dataUrl);
+}
+
+async function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = '';
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    await processImage(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function processImage(dataUrl) {
+  showProcessing({ status: 'loading', progress: 0, message: 'Starting...' });
+  const compressed = await compressImage(dataUrl, 1200, 0.7);
+  state.pendingImage = compressed;
+  const ocrData = await runOCR(compressed, (status) => showProcessing(status));
+  hideProcessing();
+
+  if (ocrData && ocrData.text) {
+    const extracted = extractReceiptData(ocrData.text);
+    showReviewOverlay(compressed, extracted, state);
+  } else {
+    showReviewOverlay(compressed, { vendorName: '', date: '', total: 0, items: [], rawText: '' }, state);
+  }
+}
+
+function compressImage(dataUrl, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
+async function saveFromReview() {
+  const data = {
+    image: state.pendingImage,
+    vendorName: document.getElementById('review-vendor').value.trim(),
+    date: document.getElementById('review-date').value,
+    amount: parseFloat(document.getElementById('review-amount').value) || 0,
+    categoryId: parseInt(document.getElementById('review-category').value),
+    notes: document.getElementById('review-notes').value.trim(),
+    ocrText: document.getElementById('review-ocr-text').value
+  };
+  if (!data.vendorName || !data.date || data.amount <= 0) return;
+  await addReceipt(state.db, data);
+  state.pendingImage = null;
+  hideReviewOverlay();
+  await reloadData();
+  navigate('receipts');
+}
+
+window.addEventListener('beforeunload', () => {
+  if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+});
