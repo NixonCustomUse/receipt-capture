@@ -12,6 +12,7 @@ import {
   renderDashboard,
   renderReceiptList,
   populateCategoryDropdown,
+  populateFilterCategories,
   renderCategoryList,
   renderDetailModal,
   closeModal,
@@ -29,7 +30,11 @@ const state = {
   currentScreen: 'dashboard',
   editingId: null,
   searchQuery: '',
-  pendingImage: null
+  pendingImage: null,
+  dateFilter: 'all',
+  categoryFilter: 'all',
+  sortBy: 'date-desc',
+  Chart: null
 };
 
 let cameraStream = null;
@@ -41,11 +46,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupNav();
   setupEvents();
   navigate('dashboard');
+  loadChartJS();
 });
 
 async function reloadData() {
   state.receipts = await getAllReceipts(state.db);
   state.categories = await getAllCategories(state.db);
+  populateFilterCategories(state.categories);
 }
 
 function setupNav() {
@@ -77,19 +84,30 @@ function navigate(screen) {
       document.getElementById('field-vendor').value = editing.vendorName || '';
       document.getElementById('field-date').value = editing.date ? editing.date.split('T')[0] : '';
       document.getElementById('field-amount').value = editing.amount || '';
+      document.getElementById('field-tags').value = (editing.tags || []).join(', ');
       document.getElementById('field-notes').value = editing.notes || '';
       document.querySelector('#receipt-form button').textContent = 'Update Receipt';
     } else {
       document.getElementById('field-vendor').value = '';
       document.getElementById('field-date').value = new Date().toISOString().split('T')[0];
       document.getElementById('field-amount').value = '';
+      document.getElementById('field-tags').value = '';
       document.getElementById('field-notes').value = '';
       document.querySelector('#receipt-form button').textContent = 'Save Receipt';
     }
     populateCategoryDropdown('field-category', state.categories, editing ? editing.categoryId : state.categories[0]?.id);
   }
 
+  if (screen === 'dashboard' || screen === 'receipts') {
+    populateFilterCategories(state.categories);
+  }
+
   renderCurrentScreen();
+  if (screen === 'dashboard') loadChartJS();
+}
+
+function parseTags(str) {
+  return str.split(',').map(s => s.trim()).filter(Boolean);
 }
 
 function renderCurrentScreen() {
@@ -97,6 +115,20 @@ function renderCurrentScreen() {
     case 'dashboard': renderDashboard(state); break;
     case 'receipts': renderReceiptList(state); break;
     case 'categories': renderCategoryList(state); break;
+  }
+}
+
+async function loadChartJS() {
+  if (state.Chart) return;
+  try {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js';
+    document.head.appendChild(s);
+    await new Promise((resolve, reject) => { s.onload = resolve; s.onerror = reject; });
+    state.Chart = window.Chart;
+    if (state.currentScreen === 'dashboard') renderDashboard(state);
+  } catch (e) {
+    console.warn('Chart.js failed to load');
   }
 }
 
@@ -108,6 +140,7 @@ function setupEvents() {
       date: document.getElementById('field-date').value,
       amount: parseFloat(document.getElementById('field-amount').value) || 0,
       categoryId: parseInt(document.getElementById('field-category').value),
+      tags: parseTags(document.getElementById('field-tags').value),
       notes: document.getElementById('field-notes').value.trim()
     };
     if (!data.vendorName || !data.date || data.amount <= 0) return;
@@ -182,19 +215,39 @@ function setupEvents() {
     renderCategoryList(state);
   });
 
+  // Filter chips
+  document.getElementById('filter-chips').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    document.querySelectorAll('#filter-chips .chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    state.dateFilter = chip.dataset.filter;
+    renderReceiptList(state);
+  });
+
+  // Category filter
+  document.getElementById('filter-category').addEventListener('change', (e) => {
+    state.categoryFilter = e.target.value;
+    renderReceiptList(state);
+  });
+
+  // Sort
+  document.getElementById('sort-by').addEventListener('change', (e) => {
+    state.sortBy = e.target.value;
+    renderReceiptList(state);
+  });
+
   // Camera
   document.getElementById('btn-camera').addEventListener('click', openCamera);
   document.getElementById('camera-close-btn').addEventListener('click', closeCamera);
   document.getElementById('capture-btn').addEventListener('click', capturePhoto);
   document.getElementById('camera-flip-btn').addEventListener('click', flipCamera);
 
-  // Upload
   document.getElementById('btn-upload').addEventListener('click', () => {
     document.getElementById('file-input').click();
   });
   document.getElementById('file-input').addEventListener('change', handleFileUpload);
 
-  // Review overlay
   document.getElementById('review-close-btn').addEventListener('click', () => {
     hideReviewOverlay();
     state.pendingImage = null;
@@ -291,6 +344,7 @@ async function saveFromReview() {
     date: document.getElementById('review-date').value,
     amount: parseFloat(document.getElementById('review-amount').value) || 0,
     categoryId: parseInt(document.getElementById('review-category').value),
+    tags: parseTags(document.getElementById('review-tags').value),
     notes: document.getElementById('review-notes').value.trim(),
     ocrText: document.getElementById('review-ocr-text').value
   };
