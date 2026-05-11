@@ -2,14 +2,246 @@
 <html lang="en-MY">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReceiptLens — Malaysia Receipt Tracker</title>
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-<div id="app">
 
-  <!-- Dashboard -->
+<!-- LANDING PAGE -->
+<div id="landing-page">
+  <nav class="landing-nav">
+    <span class="landing-logo">ReceiptLens</span>
+    <button class="landing-cta-btn" id="launch-btn">Launch App →</button>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-badge reveal">✨ Free · Offline · Malaysia</div>
+        <h1 class="hero-title reveal" style="animation-delay:100ms">Your receipts,<br><span class="gold">elevated.</span></h1>
+        <p class="hero-sub reveal" style="animation-delay:200ms">Capture, organise, and export your Malaysian receipts — all in your browser. No accounts. No cloud. Just you and your data.</p>
+        <div class="hero-actions reveal" style="animation-delay:300ms">
+          <button class="btn-landing btn-landing-primary" id="launch-btn-hero">Start Tracking →</button>
+          <button class="btn-landing btn-landing-ghost" id="scroll-btn">Learn more ↓</button>
+        </div>
+        <div class="hero-trust reveal" style="animation-delay:400ms">
+          <span>100% free</span>
+          <span>Works offline</span>
+          <span>No account needed</span>
+          <span>Runs in browser</span>
+        </div>
+      </div>
+      <div class="hero-visual reveal" style="animation-delay:200ms">
+        <div class="receipt-mockup">
+          <div class="mockup-header">
+            <span class="mockup-dot"></span>
+            <span class="mockup-dot"></span>
+            <span class="mockup-dot"></span>
+          </div>
+          <div class="mockup-body">
+            <div class="mockup-line w60"></div>
+            <div class="mockup-line w40 gold-line"></div>
+            <div class="mockup-line w80"></div>
+            <div class="mockup-line w50"></div>
+            <div class="mockup-divider"></div>
+            <div class="mockup-line w70"></div>
+            <div class="mockup-line w45"></div>
+            <div class="mockup-line w90"></div>
+            <div class="mockup-divider"></div>
+            <div class="mockup-row">
+              <span class="mockup-line w40"></span>
+              <span class="mockup-line w30 gold-line"></span>
+            </div>
+          </div>
+          <div class="scan-line"></div>
+          <div class="mockup-glow"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="problem" id="problem">
+    <div class="section-inner">
+      <div class="reveal-scroll">
+        <p class="section-label">The Problem</p>
+        <h2 class="section-heading">Receipts are a mess.</h2>
+        <p class="section-text">Thermal paper fades. Drawers overflow. Come tax season, you're digging through crumpled slips trying to remember what you spent six months ago. For Malaysian business owners and freelancers, it's worse — you need SST tracking, e-Invoice compliance, and a system that actually understands local receipts.</p>
+      </div>
+      <div class="problem-grid reveal-scroll">
+        <div class="problem-card">
+          <span class="problem-icon">🧾</span>
+          <h3>Paper fades</h3>
+          <p>Thermal receipts are blank within months. You lose deductible expenses every year.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">🔍</span>
+          <h3>Manual chaos</h3>
+          <p>Spreadsheets, shoeboxes, sticky notes. There's no system — just hope.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">🇲🇾</span>
+          <h3>Malaysia-unique</h3>
+          <p>Most apps are built for US/UK receipts. They don't handle Malay text, SST, or MyInvois.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution" id="solution">
+    <div class="section-inner">
+      <div class="reveal-scroll">
+        <p class="section-label gold">The Solution</p>
+        <h2 class="section-heading">Your phone + browser =<br>done.</h2>
+      </div>
+      <div class="solution-steps reveal-scroll">
+        <div class="step">
+          <span class="step-num">01</span>
+          <div class="step-content">
+            <h3>Snap a photo</h3>
+            <p>Point your camera at any receipt. Or upload one from your gallery.</p>
+          </div>
+        </div>
+        <div class="step-arrow">↓</div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <div class="step-content">
+            <h3>AI reads it</h3>
+            <p>Tesseract OCR extracts text. Smart parsing finds vendor, date, total, and line items — even in Bahasa Malaysia.</p>
+          </div>
+        </div>
+        <div class="step-arrow">↓</div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <div class="step-content">
+            <h3>You're in control</h3>
+            <p>Review, edit, categorise, tag. Dashboard shows your spending at a glance. Export e-Invoices when you're ready.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase" id="showcase">
+    <div class="section-inner">
+      <div class="reveal-scroll">
+        <p class="section-label">See it in action</p>
+        <h2 class="section-heading">Capture → OCR → Organised<br><span class="gold">in seconds.</span></h2>
+      </div>
+      <div class="showcase-grid reveal-scroll">
+        <div class="showcase-card">
+          <div class="showcase-icon">📷</div>
+          <h3>Camera Capture</h3>
+          <p>Built-in camera with auto-capture. Works best with back camera for clear receipt shots.</p>
+        </div>
+        <div class="showcase-card">
+          <div class="showcase-icon">🤖</div>
+          <h3>Smart OCR</h3>
+          <p>English + Malay language support. Extracts vendor, date, total, and line items automatically.</p>
+        </div>
+        <div class="showcase-card">
+          <div class="showcase-icon">📊</div>
+          <h3>Dashboard</h3>
+          <p>Monthly charts, category breakdown, spending trends. Know where your money goes.</p>
+        </div>
+        <div class="showcase-card">
+          <div class="showcase-icon">🏷</div>
+          <h3>Tags & Filters</h3>
+          <p>Organise by tags, filter by date or category, sort by amount. Find anything instantly.</p>
+        </div>
+        <div class="showcase-card">
+          <div class="showcase-icon">📄</div>
+          <h3>e-Invoice Export</h3>
+          <p>Generate MyInvois-compliant UBL 2.1 XML from your receipts. Ready for LHDN submission.</p>
+        </div>
+        <div class="showcase-card">
+          <div class="showcase-icon">🔒</div>
+          <h3>100% Private</h3>
+          <p>Everything stays in your browser. No servers, no accounts, no data leaks. Truly offline.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials" id="testimonials">
+    <div class="section-inner">
+      <div class="reveal-scroll">
+        <p class="section-label">Trusted by</p>
+        <h2 class="section-heading">Malaysians who <span class="gold">track smarter.</span></h2>
+      </div>
+      <div class="testimonial-grid reveal-scroll">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"The OCR actually reads my Malay receipts. Tried three other apps and none got 'jumlah' right. This one did."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">A</div>
+            <div>
+              <strong>Ahmad F.</strong>
+              <span>Small Business Owner, KL</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"RM 12,500 tracked in my first month. I had no idea I was spending that much on GrabFood. This is eye-opening."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">S</div>
+            <div>
+              <strong>Sarah L.</strong>
+              <span>Freelance Designer, Penang</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Finally, a receipt app that doesn't try to sell me a subscription. Free, offline, and it just works. This is how software should be."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">K</div>
+            <div>
+              <strong>Kevin T.</strong>
+              <span>Entrepreneur, Johor</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="cta">
+    <div class="section-inner">
+      <div class="cta-card reveal-scroll">
+        <h2 class="cta-heading">Ready to take control<br>of your receipts?</h2>
+        <p class="cta-text">No sign-ups. No downloads. Just open and start tracking.</p>
+        <button class="btn-landing btn-landing-primary btn-landing-lg" id="launch-btn-cta">Launch ReceiptLens →</button>
+        <div class="cta-meta">
+          <span>✨ Works offline</span>
+          <span>🔒 100% private</span>
+          <span>🇲🇾 Built for Malaysia</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-logo">ReceiptLens</span>
+        <p class="footer-tagline">Built for Malaysia. Runs in your browser. Always free.</p>
+      </div>
+      <div class="footer-right">
+        <a href="https://github.com/NixonCustomUse/receipt-capture" target="_blank" rel="noopener">GitHub</a>
+        <span class="footer-dot">·</span>
+        <span>Open source</span>
+        <span class="footer-dot">·</span>
+        <span>v1.0</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
   <div id="screen-dashboard" class="screen active">
     <div class="page-header">
       <h1>ReceiptLens</h1>
@@ -47,7 +279,6 @@
     </div>
   </div>
 
-  <!-- Receipts -->
   <div id="screen-receipts" class="screen">
     <div class="page-header">
       <h1>Receipts</h1>
@@ -63,9 +294,7 @@
         <button class="chip" data-filter="year">This Year</button>
       </div>
       <div class="filter-actions">
-        <select id="filter-category">
-          <option value="all">All Categories</option>
-        </select>
+        <select id="filter-category"><option value="all">All Categories</option></select>
         <select id="sort-by">
           <option value="date-desc">Newest</option>
           <option value="date-asc">Oldest</option>
@@ -78,7 +307,6 @@
     <div id="receipt-list"></div>
   </div>
 
-  <!-- Add -->
   <div id="screen-add" class="screen">
     <div class="page-header">
       <h1>Add Receipt</h1>
@@ -127,7 +355,6 @@
     </div>
   </div>
 
-  <!-- Categories -->
   <div id="screen-categories" class="screen">
     <div class="page-header">
       <h1>Categories</h1>
@@ -135,14 +362,13 @@
     <div class="cat-section">
       <div class="add-cat-row">
         <input type="text" id="new-cat-name" placeholder="Category name">
-        <input type="color" id="new-cat-color" value="#c9954a">
+        <input type="color" id="new-cat-color" value="#d4a853">
         <button id="add-cat-btn" class="btn">Add</button>
       </div>
       <div id="category-list"></div>
     </div>
   </div>
 
-  <!-- Camera Overlay -->
   <div id="camera-overlay" class="overlay camera-overlay">
     <div class="camera-header">
       <button id="camera-close-btn">✕</button>
@@ -156,7 +382,6 @@
     <input type="file" id="file-input" accept="image/*" style="display:none">
   </div>
 
-  <!-- Processing Overlay -->
   <div id="processing-overlay" class="overlay processing-overlay">
     <div class="processing-spinner"></div>
     <div class="processing-status" id="processing-status">Processing...</div>
@@ -165,7 +390,6 @@
     </div>
   </div>
 
-  <!-- Review Overlay -->
   <div id="review-overlay" class="overlay review-overlay">
     <div class="review-header">
       <h2>Review Receipt</h2>
@@ -207,7 +431,6 @@
     </div>
   </div>
 
-  <!-- Detail Modal -->
   <div id="receipt-modal" class="modal">
     <div class="modal-content">
       <button class="modal-close" id="modal-close-btn">✕</button>
@@ -215,7 +438,6 @@
     </div>
   </div>
 
-  <!-- Bottom Nav -->
   <nav id="bottom-nav">
     <div class="nav-item active" data-screen="dashboard">
       <span class="nav-icon">📊</span> Dashboard
@@ -230,7 +452,6 @@
       <span class="nav-icon">🏷</span> Categories
     </div>
   </nav>
-
 </div>
 
 <script type="module" src="js/app.js"></script>

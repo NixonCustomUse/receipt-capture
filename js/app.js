@@ -41,13 +41,37 @@ let cameraStream = null;
 let facingMode = 'environment';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  initLanding();
+
   state.db = await openDB();
   await reloadData();
+});
+
+function launchApp() {
+  document.getElementById('landing-page').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
   setupNav();
   setupEvents();
   navigate('dashboard');
   loadChartJS();
-});
+}
+
+function initLanding() {
+  document.querySelectorAll('.reveal-scroll').forEach(el => {
+    const ro = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    ro.observe(el);
+  });
+
+  document.getElementById('launch-btn').addEventListener('click', launchApp);
+  document.getElementById('launch-btn-hero').addEventListener('click', launchApp);
+  document.getElementById('launch-btn-cta').addEventListener('click', launchApp);
+
+  document.getElementById('scroll-btn').addEventListener('click', () => {
+    document.getElementById('problem').scrollIntoView({ behavior: 'smooth' });
+  });
+}
 
 async function reloadData() {
   state.receipts = await getAllReceipts(state.db);
