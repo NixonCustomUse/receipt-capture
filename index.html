@@ -260,6 +260,10 @@
         <span class="num" id="stat-avg">RM 0</span>
         <span class="label">Average</span>
       </div>
+      <div class="stat-tile">
+        <span class="num" id="stat-ytd">RM 0</span>
+        <span class="label">Year to Date</span>
+      </div>
     </div>
     <div class="section">
       <div class="chart-row">
@@ -452,9 +456,58 @@
   <nav id="bottom-nav">
     <div class="nav-item active" data-screen="dashboard">Dashboard</div>
     <div class="nav-item" data-screen="receipts">Receipts</div>
-    <div class="nav-item" data-screen="add">Add</div>
     <div class="nav-item" data-screen="categories">Categories</div>
   </nav>
+
+  <button id="fab-add" class="fab" aria-label="Add Receipt">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </button>
+
+  <div id="add-sheet" class="bottom-sheet">
+    <div class="sheet-backdrop"></div>
+    <div class="sheet-panel">
+      <div class="sheet-handle"></div>
+      <h3 class="sheet-title">Add Receipt</h3>
+      <button class="sheet-option" id="sheet-camera">
+        <span class="sheet-icon">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </span>
+        <span class="sheet-opt-text">
+          <strong>Camera</strong>
+          <small>Capture receipt</small>
+        </span>
+      </button>
+      <button class="sheet-option" id="sheet-upload">
+        <span class="sheet-icon">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </span>
+        <span class="sheet-opt-text">
+          <strong>Upload</strong>
+          <small>Choose image</small>
+        </span>
+      </button>
+      <button class="sheet-option" id="sheet-manual">
+        <span class="sheet-icon">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+          </svg>
+        </span>
+        <span class="sheet-opt-text">
+          <strong>Manual</strong>
+          <small>Type receipt details</small>
+        </span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <script type="module" src="js/app.js"></script>

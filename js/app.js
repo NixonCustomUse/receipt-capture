@@ -261,13 +261,32 @@ function setupEvents() {
     renderReceiptList(state);
   });
 
+  // FAB → bottom sheet
+  document.getElementById('fab-add').addEventListener('click', showAddSheet);
+  document.getElementById('add-sheet').addEventListener('click', (e) => {
+    if (e.target.closest('.sheet-backdrop')) hideAddSheet();
+  });
+  document.getElementById('sheet-camera').addEventListener('click', () => {
+    hideAddSheet();
+    openCamera();
+  });
+  document.getElementById('sheet-upload').addEventListener('click', () => {
+    hideAddSheet();
+    document.getElementById('file-input').click();
+  });
+  document.getElementById('sheet-manual').addEventListener('click', () => {
+    hideAddSheet();
+    navigate('add');
+  });
+
   // Camera
-  document.getElementById('btn-camera').addEventListener('click', openCamera);
+  document.getElementById('btn-camera').addEventListener('click', () => { hideAddSheet(); openCamera(); });
   document.getElementById('camera-close-btn').addEventListener('click', closeCamera);
   document.getElementById('capture-btn').addEventListener('click', capturePhoto);
   document.getElementById('camera-flip-btn').addEventListener('click', flipCamera);
 
   document.getElementById('btn-upload').addEventListener('click', () => {
+    hideAddSheet();
     document.getElementById('file-input').click();
   });
   document.getElementById('file-input').addEventListener('change', handleFileUpload);
@@ -277,6 +296,14 @@ function setupEvents() {
     state.pendingImage = null;
   });
   document.getElementById('review-save-btn').addEventListener('click', saveFromReview);
+}
+
+function showAddSheet() {
+  document.getElementById('add-sheet').classList.add('open');
+}
+
+function hideAddSheet() {
+  document.getElementById('add-sheet').classList.remove('open');
 }
 
 async function openCamera() {

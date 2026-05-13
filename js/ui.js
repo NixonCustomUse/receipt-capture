@@ -69,11 +69,15 @@ export function renderDashboard(state) {
   const monthTotal = state.receipts
     .filter(r => { const d = new Date(r.date); return d.getMonth() === m && d.getFullYear() === y; })
     .reduce((sum, r) => sum + (r.amount || 0), 0);
+  const ytd = state.receipts
+    .filter(r => { const d = new Date(r.date); return d.getFullYear() === y; })
+    .reduce((sum, r) => sum + (r.amount || 0), 0);
   const avg = total > 0 ? monthTotal / total : 0;
 
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-month').textContent = formatMoney(monthTotal);
   document.getElementById('stat-avg').textContent = formatMoney(avg);
+  document.getElementById('stat-ytd').textContent = formatMoney(ytd);
 
   const container = document.getElementById('recent-receipts');
   const recent = state.receipts.slice(0, 5);
