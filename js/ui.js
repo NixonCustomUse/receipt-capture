@@ -9,7 +9,7 @@ function formatMoney(n) {
 }
 
 function getCategory(state, id) {
-  return state.categories.find(c => c.id === id) || { name: 'Unknown', color: '#999' };
+  return state.categories.find(c => c.id === id) || { name: 'Unknown', color: '#666' };
 }
 
 function escHtml(str) {
@@ -78,13 +78,13 @@ export function renderDashboard(state) {
   const container = document.getElementById('recent-receipts');
   const recent = state.receipts.slice(0, 5);
   if (recent.length === 0) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🧾</span>No receipts yet.<br>Tap <strong>Add</strong> to get started!</div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-figure"></div><strong>No receipts yet</strong><p>Add your first receipt to get started</p></div>`;
     return;
   }
   container.innerHTML = recent.map(r => {
     const cat = getCategory(state, r.categoryId);
     return `<div class="receipt-row" data-id="${r.id}">
-      <span class="cat-dot" style="background:${cat.color}"></span>
+      <span class="row-bar" style="background:${cat.color}"></span>
       <div class="row-info">
         <strong>${escHtml(r.vendorName || 'Unknown')}</strong>
         <small>${formatDate(r.date)}</small>
@@ -117,8 +117,7 @@ function getCategoryData(receipts, categories) {
   const map = {};
   receipts.forEach(r => {
     const cat = getCategory({ categories }, r.categoryId);
-    const name = cat.name;
-    map[name] = (map[name] || 0) + (r.amount || 0);
+    map[cat.name] = (map[cat.name] || 0) + (r.amount || 0);
   });
   const colors = categories.map(c => c.color);
   return { labels: Object.keys(map), data: Object.values(map), colors };
@@ -131,7 +130,6 @@ export function renderCharts(state) {
   const canvasMonthly = document.getElementById('chart-monthly');
   const canvasCategory = document.getElementById('chart-category');
   if (!canvasMonthly || !canvasCategory) return;
-
   if (!state.Chart) return;
 
   if (chartMonthlyInstance) { chartMonthlyInstance.destroy(); chartMonthlyInstance = null; }
@@ -141,8 +139,8 @@ export function renderCharts(state) {
   const hasData = monthly.some(m => m.total > 0);
 
   if (!hasData) {
-    canvasMonthly.parentElement.innerHTML = '<div class="empty-chart" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No data yet</div>';
-    canvasCategory.parentElement.innerHTML = '<div class="empty-chart" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No data yet</div>';
+    canvasMonthly.parentElement.innerHTML = '<div class="empty-chart">No spending data yet</div>';
+    canvasCategory.parentElement.innerHTML = '<div class="empty-chart">No spending data yet</div>';
     return;
   }
 
@@ -163,8 +161,7 @@ export function renderCharts(state) {
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
         x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
@@ -175,7 +172,7 @@ export function renderCharts(state) {
 
   const catData = getCategoryData(state.receipts, state.categories);
   if (catData.labels.length === 0) {
-    canvasCategory.parentElement.innerHTML = '<div class="empty-chart" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No data yet</div>';
+    canvasCategory.parentElement.innerHTML = '<div class="empty-chart">No spending data yet</div>';
     return;
   }
 
@@ -183,21 +180,12 @@ export function renderCharts(state) {
     type: 'doughnut',
     data: {
       labels: catData.labels,
-      datasets: [{
-        data: catData.data,
-        backgroundColor: catData.colors,
-        borderWidth: 0
-      }]
+      datasets: [{ data: catData.data, backgroundColor: catData.colors, borderWidth: 0 }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '65%',
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: textColor, font: { size: 10 }, padding: 12 }
-        }
+        legend: { position: 'bottom', labels: { color: textColor, font: { size: 10 }, padding: 12 } }
       }
     }
   });
@@ -208,17 +196,20 @@ export function renderReceiptList(state) {
   const list = getFilteredList(state);
 
   if (list.length === 0) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span>${state.searchQuery || state.dateFilter !== 'all' ? 'No matching receipts.' : 'No receipts yet.'}</div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-figure"></div><strong>${state.searchQuery || state.dateFilter !== 'all' ? 'No matching results' : 'No receipts yet'}</strong><p>${state.searchQuery || state.dateFilter !== 'all' ? 'Try adjusting your search or filters' : 'Tap Add to capture your first receipt'}</p></div>`;
     return;
   }
   container.innerHTML = list.map(r => {
     const cat = getCategory(state, r.categoryId);
     return `<div class="receipt-card" data-id="${r.id}">
-      <div class="card-thumb">${r.image ? `<img src="${r.image}" alt="">` : '<span>🧾</span>'}</div>
+      <div class="card-accent" style="background:${cat.color}"></div>
+      <div class="card-thumb${r.image ? '' : ' card-thumb-empty'}" style="${r.image ? '' : `background:${cat.color}10`}">
+        ${r.image ? `<img src="${r.image}" alt="">` : ''}
+      </div>
       <div class="card-body">
         <strong>${escHtml(r.vendorName || 'Unknown')}</strong>
         <small>${formatDate(r.date)}</small>
-        <span class="cat-tag" style="background:${cat.color}15;color:${cat.color}">${escHtml(cat.name)}</span>
+        <span class="cat-tag" style="background:${cat.color}12;color:${cat.color}">${escHtml(cat.name)}</span>
         ${renderTags(r.tags)}
       </div>
       <span class="card-amount">${formatMoney(r.amount)}</span>
@@ -244,14 +235,16 @@ export function populateFilterCategories(categories) {
 export function renderCategoryList(state) {
   const container = document.getElementById('category-list');
   if (state.categories.length === 0) {
-    container.innerHTML = '<div class="empty-state">No categories.</div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-figure"></div><strong>No categories</strong><p>Create your first category to organise receipts</p></div>';
     return;
   }
   container.innerHTML = state.categories.map(c =>
     `<div class="cat-item" data-id="${c.id}">
       <span class="cat-dot" style="background:${c.color}"></span>
       <span>${escHtml(c.name)}</span>
-      <button class="btn-icon del-cat" data-id="${c.id}">✕</button>
+      <button class="btn-icon del-cat" data-id="${c.id}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>`
   ).join('');
 }
@@ -262,21 +255,24 @@ export function renderDetailModal(state, id) {
   const cat = getCategory(state, r.categoryId);
   const el = document.getElementById('receipt-detail');
   el.innerHTML = `
-    ${r.image ? `<div style="margin-bottom:12px;border-radius:12px;overflow:hidden;max-height:200px;background:var(--input-bg)">
-      <img src="${r.image}" style="width:100%;height:200px;object-fit:cover" alt="">
-    </div>` : ''}
+    ${r.image ? `<div class="detail-image"><img src="${r.image}" alt=""></div>` : ''}
     <div class="detail-body">
-      <h2 style="font-family:var(--font-heading);font-size:20px;margin-bottom:4px">${escHtml(r.vendorName || 'Unknown')}</h2>
-      <span class="cat-tag" style="background:${cat.color}15;color:${cat.color};margin-bottom:12px;display:inline-block">${escHtml(cat.name)}</span>
+      <div class="detail-head">
+        <h2>${escHtml(r.vendorName || 'Unknown')}</h2>
+        <span class="cat-tag" style="background:${cat.color}12;color:${cat.color}">${escHtml(cat.name)}</span>
+      </div>
       ${renderTags(r.tags)}
-      <div class="detail-row"><strong>Date</strong><span>${formatDate(r.date)}</span></div>
-      <div class="detail-row"><strong>Amount</strong><span class="detail-amount">${formatMoney(r.amount)}</span></div>
-      ${r.notes ? `<div class="detail-row"><strong>Notes</strong><span>${escHtml(r.notes)}</span></div>` : ''}
-      <div class="detail-row"><strong>Added</strong><span>${formatDate(r.createdAt)}</span></div>
-    </div>
-    <div class="detail-actions">
-      <button class="btn btn-ghost edit-receipt" data-id="${r.id}">Edit</button>
-      <button class="btn btn-danger del-receipt" data-id="${r.id}">Delete</button>
+      <div class="detail-info">
+        <div class="detail-row"><span>Date</span><span>${formatDate(r.date)}</span></div>
+        <div class="detail-row"><span>Amount</span><span class="detail-amount">${formatMoney(r.amount)}</span></div>
+        ${r.notes ? `<div class="detail-row"><span>Notes</span><span>${escHtml(r.notes)}</span></div>` : ''}
+        <div class="detail-row"><span>Added</span><span>${formatDate(r.createdAt)}</span></div>
+        ${r.ocrText ? `<div class="detail-row"><span>OCR</span><span style="font-size:12px;color:var(--text-muted)">Processed</span></div>` : ''}
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-ghost edit-receipt" data-id="${r.id}">Edit</button>
+        <button class="btn btn-danger del-receipt" data-id="${r.id}">Delete</button>
+      </div>
     </div>
   `;
   document.getElementById('receipt-modal').classList.add('open');

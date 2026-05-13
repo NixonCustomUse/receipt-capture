@@ -451,9 +451,13 @@ body {
   background: var(--surface-hover);
 }
 .scan-option .icon {
-  font-size: 36px;
   display: block;
   margin-bottom: 8px;
+  color: var(--accent);
+}
+.scan-option .icon svg {
+  display: block;
+  margin: 0 auto;
 }
 .scan-option .label {
   font-size: 13px;
@@ -856,17 +860,19 @@ body {
   transition: color 0.3s;
   -webkit-tap-highlight-color: transparent;
   font-weight: 500;
-}
-.nav-item .nav-icon {
-  font-size: 22px;
-  line-height: 1;
-  transition: transform 0.3s;
+  position: relative;
 }
 .nav-item.active {
   color: var(--accent);
 }
-.nav-item.active .nav-icon {
-  transform: scale(1.15);
+.nav-item.active::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 6px;
 }
 
 /* Desktop */
@@ -902,7 +908,7 @@ body {
   .nav-item.active {
     border-left-color: var(--accent);
   }
-  .nav-item .nav-icon { font-size: 18px; }
+  .nav-item.active::after { display: none; }
   .modal-content {
     border-radius: 20px;
     margin: auto;
